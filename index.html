@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Glucose Visualization</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <h2>Average Glucose Peaks by Participant</h2>
+
+  <div class="controls" style="margin-bottom: 20px;">
+    <strong>Select Nutrients:</strong><br>
+    <label><input type="checkbox" class="nutrient" value="protein" checked> Protein</label>
+    <label><input type="checkbox" class="nutrient" value="sugar" checked> Sugar</label>
+    <label><input type="checkbox" class="nutrient" value="total_carb"> Carbs</label>
+    <label><input type="checkbox" class="nutrient" value="total_fat"> Fat</label>
+    <label><input type="checkbox" class="nutrient" value="dietary_fiber"> Fiber</label>
+
+    <br><br>
+    <label><strong>Filter by Gender:</strong>
+      <select id="genderSelect">
+        <option value="all">All</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </label>
+
+    <br><br>
+    <button id="sortBtn">Sort by Glucose</button>
+  </div>
+
+  <svg id="chart" width="960" height="500"></svg>
+  <div id="tooltip" class="tooltip" style="
+    position: absolute;
+    text-align: left;
+    padding: 8px;
+    font-size: 13px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    pointer-events: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    opacity: 0;
+  "></div>
+
+  <script src="main.js"></script>
+</body>
+</html>

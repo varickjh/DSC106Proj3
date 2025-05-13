@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Glucose Visualization</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .bar {
+      fill: steelblue;
+    }
+    .bar:hover {
+      fill: darkorange;
+    }
+    .tooltip {
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 8px;
+      font-size: 12px;
+      pointer-events: none;
+      opacity: 0;
+    }
+    .controls {
+      margin-bottom: 20px;
+    }
+    .controls label {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Average Glucose Peak per Participant</h2>
+
+  <div class="controls">
+    <label><input type="checkbox" class="nutrient" value="Protein" checked> Protein</label>
+    <label><input type="checkbox" class="nutrient" value="Sugar" checked> Sugar</label>
+    <label><input type="checkbox" class="nutrient" value="Carbs"> Carbs</label>
+    <label><input type="checkbox" class="nutrient" value="Fat"> Fat</label>
+    <label><input type="checkbox" class="nutrient" value="Fiber"> Fiber</label>
+
+    <br><br>
+    <label>Gender:
+      <select id="genderSelect">
+        <option value="all">All</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </label>
+
+    <button id="sortBtn">Sort by Glucose</button>
+  </div>
+
+  <svg width="900" height="500"></svg>
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+    const svg = d3.select("svg"),
+          margin = {top: 40, right: 20, bottom: 60, left: 60},
+          width = +svg.attr("width") - margin.left - margin.right,
+          height = +svg.attr("height") - margin.top - margin.bottom,
+          chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const tooltip = d3.select("#tooltip");
+    let sorted = false;
+    let rawData;
+
+    d3.csv("glucose_peaks_filtered.csv").then(data => {
+      data.forEach(d => {
+        d.ID = +d.ID;
+        d.Avg_Peak_Glucose = +d.Avg_Peak_Glucose;
+        d.Meal_Count = +d.Meal_Count;
+        d.HbA1C = +d.HbA1C;
+        d.gender = d.gender.toLowerCase();
+      });
+      rawData = data;
+      updateChart();
+    });
+
+    function updateChart() {
+      const selectedNutrients = Array.from(document.querySelectorAll(".nutrient:checked")).map(d => d.value);
+      const gender = document.getElementById("genderSelect").value;
+
+      let filtered = rawData
+      if (gender !== "all") {
+        filtered = filtered.filter(d => d.gender === gender);
+      }
+
+      if (sorted) {
+        filtered.sort((a, b) => b.Avg_Peak_Glucose - a.Avg_Peak_Glucose);
+      }
+
+      const x = d3.scaleBand()
+        .domain(filtered.map(d => d.ID + '-' + d.Nutrient))
+        .range([0, width])
+        .padding(0.2);
+
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(filtered, d => d.Avg_Peak_Glucose)]).nice()
+        .range([height, 0]);
+
+      chart.selectAll(".axis").remove();
+
+      chart.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d => d))
+        .selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end");
+
+      chart.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y));
+
+      const bars = chart.selectAll(".bar")
+        .data(filtered, d => d.ID + '-' + d.Nutrient);
+
+      bars.enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(d.ID + '-' + d.Nutrient))
+        .attr("y", d => y(d.Avg_Peak_Glucose))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(d.Avg_Peak_Glucose))
+        .on("mouseover", function(e, d) {
+          tooltip.transition().duration(200).style("opacity", 0.9);
+          tooltip.html(
+            `ID: ${d.ID}<br>` +
+            `Nutrient: ${d.Nutrient}<br>` +
+            `Avg Peak: ${d.Avg_Peak_Glucose}<br>` +
+            `Meals: ${d.Meal_Count}<br>` +
+            `HbA1C: ${d.HbA1C}`
+          ).style("left", (e.pageX + 10) + "px")
+           .style("top", (e.pageY - 28) + "px");
+        })
+        .on("mouseout", () => tooltip.transition().duration(500).style("opacity", 0));
+
+      bars.transition().duration(750)
+        .attr("x", d => x(d.ID + '-' + d.Nutrient))
+        .attr("y", d => y(d.Avg_Peak_Glucose))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(d.Avg_Peak_Glucose));
+
+      bars.exit().remove();
+    }
+
+    document.querySelectorAll(".nutrient").forEach(cb => cb.addEventListener("change", updateChart));
+    document.getElementById("genderSelect").addEventListener("change", updateChart);
+    document.getElementById("sortBtn").addEventListener("click", () => {
+      sorted = !sorted;
+      updateChart();
+    });
+  </script>
+</body>
+</html>
