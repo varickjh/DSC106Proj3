@@ -42,6 +42,41 @@ const color = d3.scaleOrdinal()
     .domain(features)
     .range(d3.schemeCategory10);
 
+    Promise.all([
+        d3.csv("data/food_log.csv"),      // rename if needed
+        d3.csv("data/dexcom.csv")         // rename if needed
+      ]).then(([food_df, dexcom_df]) => {
+      
+        // Parse food_df columns
+        food_df.forEach(d => {
+          d.time_begin = new Date(d.time_begin);
+          d.calorie = +d.calorie;
+          d.total_carb = +d.total_carb;
+          d.dietary_fiber = +d.dietary_fiber;
+          d.sugar = +d.sugar;
+          d.protein = +d.protein;
+          d.total_fat = +d.total_fat;
+          d.ID = +d.ID;
+        });
+      
+        // Parse dexcom_df columns
+        dexcom_df.forEach(d => {
+          d.Timestamp = new Date(d["Timestamp (YYYY-MM-DDThh:mm:ss)"]);
+          d["Glucose Value (mg/dL)"] = +d["Glucose Value (mg/dL)"];
+          d.ID = +d.ID;
+        });
+      
+        // Make them global
+        window.food_df = food_df;
+        window.dexcom_df = dexcom_df;
+      
+        // Kick off the UI rendering
+        init();
+      });
+      
+
+
+    
 // Initialize the chart
 function init() {
     // Populate checkboxes
@@ -129,152 +164,225 @@ function updateLegend() {
 }
 
 // Update the chart
-function updateChart() {
-    const chartContainer = document.getElementById('chart-container');
-    chartContainer.innerHTML = '';
+// function updateChart() { //delete this and replace function to create the bar chart
+//     const chartContainer = document.getElementById('chart-container');
+//     chartContainer.innerHTML = '';
     
-    // Show message if no features selected
-    if (selectedFeatures.length === 0) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'empty-chart-message';
-        messageDiv.textContent = 'Please select at least one feature to display';
-        chartContainer.appendChild(messageDiv);
-        return;
-    }
+//     // Show message if no features selected
+//     if (selectedFeatures.length === 0) {
+//         const messageDiv = document.createElement('div');
+//         messageDiv.className = 'empty-chart-message';
+//         messageDiv.textContent = 'Please select at least one feature to display';
+//         chartContainer.appendChild(messageDiv);
+//         return;
+//     }
     
-    // Create SVG element
-    const containerWidth = chartContainer.clientWidth;
-    const containerHeight = chartContainer.clientHeight;
+//     // Create SVG element
+//     const containerWidth = chartContainer.clientWidth;
+//     const containerHeight = chartContainer.clientHeight;
     
-    const margin = { top: 40, right: 30, bottom: 90, left: 60 };
-    const width = containerWidth - margin.left - margin.right;
-    const height = containerHeight - margin.top - margin.bottom;
+//     const margin = { top: 40, right: 30, bottom: 90, left: 60 };
+//     const width = containerWidth - margin.left - margin.right;
+//     const height = containerHeight - margin.top - margin.bottom;
     
-    const svg = d3.select(chartContainer)
-        .append('svg')
-        .attr('width', containerWidth)
-        .attr('height', containerHeight)
-        .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+//     const svg = d3.select(chartContainer)
+//         .append('svg')
+//         .attr('width', containerWidth)
+//         .attr('height', containerHeight)
+//         .append('g')
+//         .attr('transform', `translate(${margin.left},${margin.top})`);
     
-    // Filter data based on gender selection
-    const filteredData = data.filter(d => 
-        selectedGender === 'All' ? true : d.Gender === selectedGender || d.Gender === 'All'
-    );
+//     // Filter data based on gender selection
+//     const filteredData = data.filter(d => 
+//         selectedGender === 'All' ? true : d.Gender === selectedGender || d.Gender === 'All'
+//     );
     
-    // Process data for stacked bars
-    const stackedData = filteredData.map(item => {
-        const foodItem = { Food: item.Food };
-        selectedFeatures.forEach(feature => {
-            foodItem[feature] = item[feature];
-        });
-        return foodItem;
-    });
+//     // Process data for stacked bars
+//     const stackedData = filteredData.map(item => {
+//         const foodItem = { Food: item.Food };
+//         selectedFeatures.forEach(feature => {
+//             foodItem[feature] = item[feature];
+//         });
+//         return foodItem;
+//     });
     
-    // Sort data if needed
-    if (sortByValue) {
-        stackedData.sort((a, b) => {
-            let sumA = 0, sumB = 0;
-            selectedFeatures.forEach(feature => {
-                sumA += a[feature];
-                sumB += b[feature];
-            });
-            return d3.descending(sumA, sumB);
-        });
-    } else {
-        stackedData.sort((a, b) => d3.ascending(a.Food, b.Food));
-    }
+//     // Sort data if needed
+//     if (sortByValue) {
+//         stackedData.sort((a, b) => {
+//             let sumA = 0, sumB = 0;
+//             selectedFeatures.forEach(feature => {
+//                 sumA += a[feature];
+//                 sumB += b[feature];
+//             });
+//             return d3.descending(sumA, sumB);
+//         });
+//     } else {
+//         stackedData.sort((a, b) => d3.ascending(a.Food, b.Food));
+//     }
     
-    // X axis
-    const x = d3.scaleBand()
-        .domain(stackedData.map(d => d.Food))
-        .range([0, width])
-        .padding(0.2);
+//     // X axis
+//     const x = d3.scaleBand()
+//         .domain(stackedData.map(d => d.Food))
+//         .range([0, width])
+//         .padding(0.2);
     
-    svg.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll('text')
-        .attr('transform', 'translate(-10,0)rotate(-45)')
-        .style('text-anchor', 'end');
+//     svg.append('g')
+//         .attr('transform', `translate(0,${height})`)
+//         .call(d3.axisBottom(x))
+//         .selectAll('text')
+//         .attr('transform', 'translate(-10,0)rotate(-45)')
+//         .style('text-anchor', 'end');
     
-    // Calculate max value for Y scale
-    let maxValue = 0;
-    stackedData.forEach(d => {
-        let sum = 0;
-        selectedFeatures.forEach(feature => {
-            sum += d[feature];
-        });
-        maxValue = Math.max(maxValue, sum);
-    });
+//     // Calculate max value for Y scale
+//     let maxValue = 0;
+//     stackedData.forEach(d => {
+//         let sum = 0;
+//         selectedFeatures.forEach(feature => {
+//             sum += d[feature];
+//         });
+//         maxValue = Math.max(maxValue, sum);
+//     });
     
-    // Y axis
-    const y = d3.scaleLinear()
-        .domain([0, maxValue * 1.1])
-        .range([height, 0]);
+//     // Y axis
+//     const y = d3.scaleLinear()
+//         .domain([0, maxValue * 1.1])
+//         .range([height, 0]);
     
-    svg.append('g')
-        .call(d3.axisLeft(y));
+//     svg.append('g')
+//         .call(d3.axisLeft(y));
     
-    // Add Y axis label
-    svg.append('text')
-        .attr('transform', 'rotate(-90)')
-        .attr('y', -margin.left + 20)
-        .attr('x', -height / 2)
-        .attr('text-anchor', 'middle')
-        .text('Value');
+//     // Add Y axis label
+//     svg.append('text')
+//         .attr('transform', 'rotate(-90)')
+//         .attr('y', -margin.left + 20)
+//         .attr('x', -height / 2)
+//         .attr('text-anchor', 'middle')
+//         .text('Value');
     
-    // Create tooltip
-    const tooltip = d3.select('body')
-        .append('div')
-        .attr('class', 'tooltip')
-        .style('opacity', 0);
+//     // Create tooltip
+//     const tooltip = d3.select('body')
+//         .append('div')
+//         .attr('class', 'tooltip')
+//         .style('opacity', 0);
     
-    // Create bar groups
-    const barGroups = svg.selectAll('.bar-group')
-        .data(stackedData)
-        .enter()
-        .append('g')
-        .attr('class', 'bar-group')
-        .attr('transform', d => `translate(${x(d.Food)},0)`);
+//     // Create bar groups
+//     const barGroups = svg.selectAll('.bar-group')
+//         .data(stackedData)
+//         .enter()
+//         .append('g')
+//         .attr('class', 'bar-group')
+//         .attr('transform', d => `translate(${x(d.Food)},0)`);
     
-    // Create stacked bars
-    let yOffset = {};
-    stackedData.forEach(d => {
-        yOffset[d.Food] = 0;
-    });
+//     // Create stacked bars
+//     let yOffset = {};
+//     stackedData.forEach(d => {
+//         yOffset[d.Food] = 0;
+//     });
     
-    selectedFeatures.forEach(feature => {
-        barGroups.append('rect')
-            .attr('class', 'bar')
-            .attr('width', x.bandwidth())
-            .attr('y', d => y(d[feature] + yOffset[d.Food]))
-            .attr('height', d => height - y(d[feature]))
-            .attr('fill', color(feature))
-            .attr('data-feature', feature)
-            .on('mouseover', function(event, d) {
-                const featureName = d3.select(this).attr('data-feature');
-                const value = d[featureName];
+//     selectedFeatures.forEach(feature => {
+//         barGroups.append('rect')
+//             .attr('class', 'bar')
+//             .attr('width', x.bandwidth())
+//             .attr('y', d => y(d[feature] + yOffset[d.Food]))
+//             .attr('height', d => height - y(d[feature]))
+//             .attr('fill', color(feature))
+//             .attr('data-feature', feature)
+//             .on('mouseover', function(event, d) {
+//                 const featureName = d3.select(this).attr('data-feature');
+//                 const value = d[featureName];
                 
-                tooltip.transition()
-                    .duration(200)
-                    .style('opacity', .9);
-                tooltip.html(`<strong>${d.Food}</strong><br>${featureName}: ${value}`)
-                    .style('left', (event.pageX + 10) + 'px')
-                    .style('top', (event.pageY - 28) + 'px');
-            })
-            .on('mouseout', function() {
-                tooltip.transition()
-                    .duration(500)
-                    .style('opacity', 0);
-            });
+//                 tooltip.transition()
+//                     .duration(200)
+//                     .style('opacity', .9);
+//                 tooltip.html(`<strong>${d.Food}</strong><br>${featureName}: ${value}`)
+//                     .style('left', (event.pageX + 10) + 'px')
+//                     .style('top', (event.pageY - 28) + 'px');
+//             })
+//             .on('mouseout', function() {
+//                 tooltip.transition()
+//                     .duration(500)
+//                     .style('opacity', 0);
+//             });
         
-        // Update offset for next bar
-        stackedData.forEach(d => {
-            yOffset[d.Food] += d[feature];
-        });
+//         // Update offset for next bar
+//         stackedData.forEach(d => {
+//             yOffset[d.Food] += d[feature];
+//         });
+//     });
+// }
+
+function getAvgCaloriesPerParticipant(food_df, genderFilter = "All") {
+    const filtered = food_df.filter(d => {
+      return genderFilter === "All" || d.Gender === genderFilter;
     });
-}
+  
+    const grouped = d3.rollup(
+      filtered,
+      v => d3.mean(v, d => d.calorie),
+      d => d.ID
+    );
+  
+    return Array.from(grouped, ([participant, avg_calorie]) => ({
+      participant,
+      avg_calorie
+    }));
+  }
+  function updateChart() {
+    if (!window.food_df) return;
+  
+    const data = getAvgCaloriesPerParticipant(food_df, selectedGender);
+    
+    d3.select("#chart-container").selectAll("*").remove();
+    drawBarChart(data);
+  }
+  function drawBarChart(data) {
+    const width = 800;
+    const height = 400;
+    const margin = { top: 30, right: 20, bottom: 50, left: 60 };
+  
+    const svg = d3.select("#chart-container")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+  
+    const x = d3.scaleBand()
+      .domain(data.map(d => d.participant))
+      .range([margin.left, width - margin.right])
+      .padding(0.1);
+  
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.avg_calorie)])
+      .nice()
+      .range([height - margin.bottom, margin.top]);
+  
+    svg.append("g")
+      .selectAll("rect")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("x", d => x(d.participant))
+      .attr("y", d => y(d.avg_calorie))
+      .attr("width", x.bandwidth())
+      .attr("height", d => y(0) - y(d.avg_calorie))
+      .attr("fill", "tomato");
+  
+    svg.append("g")
+      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).tickFormat(d => `P${d}`));
+  
+    svg.append("g")
+      .attr("transform", `translate(${margin.left},0)`)
+      .call(d3.axisLeft(y));
+  
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", margin.top / 2)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "16px")
+      .text("Average Calorie Intake by Participant");
+  }
+      
+
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', init);
