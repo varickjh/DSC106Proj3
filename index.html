@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< HEAD
   <meta charset="UTF-8">
   <title>Interactive Glucose Visualization</title>
   <link rel="stylesheet" href="style.css">
@@ -12,8 +11,8 @@
 
   <div class="controls" style="margin-bottom: 20px;">
     <strong>Select Nutrients:</strong><br>
-    <label><input type="checkbox" class="nutrient" value="protein" checked> Protein</label>
-    <label><input type="checkbox" class="nutrient" value="sugar" checked> Sugar</label>
+    <label><input type="checkbox" class="nutrient" value="protein"> Protein</label>
+    <label><input type="checkbox" class="nutrient" value="sugar"> Sugar</label>
     <label><input type="checkbox" class="nutrient" value="total_carb"> Carbs</label>
     <label><input type="checkbox" class="nutrient" value="total_fat"> Fat</label>
     <label><input type="checkbox" class="nutrient" value="dietary_fiber"> Fiber</label>
@@ -44,18 +43,30 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     opacity: 0;
   "></div>
-=======
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Health Data Interactive Chart</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>📊 Health Data Explorer</h1>
-  <div id="chart"></div>
->>>>>>> 0f524db0b7d3f5629abc6e6e86219c6f84ac966c
 
+  <div id ="writeup" style="margin-top: 20px;">
+    <h3>Design Rationale</h3>
+
+    <h3>An Overview of the Development Process</h3>
+    <p>EDA on that dataset. Since Rayyan had experience using a Dexcom, we understood the BIG IDEAs Lab Glycemic Variability 
+      and Wearable Device Data the best and decided that was the dataset we wanted to use. Ravi did EDA on the Food Logs of 
+      each participant, while Rayyan did EDA on the Dexcom data of each participant. 
+      Varick did EDA on the relationship between the food participants ate and their glucose levels. </p>
+    <p>We decided to use the Dexcom data and the food logs of each participant to see if there was a correlation between the
+      food they ate and their glucose levels. We used the Dexcom data to find the average glucose levels of each participant 
+      and then used the food logs to find the average amount of protein, sugar, carbs, fat, and fiber each participant ate. 
+      We then used this data to create a bar chart that shows the average glucose levels of each participant and the average 
+      amount of protein, sugar, carbs, fat, and fiber they ate.</p>
+    <p>We brainstormed and ideated the interactive visualization that we wanted together as a team, taking us around 4-5 hours 
+      to finally decide on an interactive idea that filled the filter, connect, reconfigure, and elaborate aspects of interactive 
+      visualizations covered by Prof. Lau in class. It took us a long time to ideate because we had ideas that weren't supported by 
+      our dataset, either because of missing data or the nature of the dataset itself, so there were many times that we had to reset 
+      back to square one. </p>
+    <p>After getting through the aspect that took the most time, our interactive visualization consisted of two main parts: the main bar 
+      chart, and the other components, including the dropdown menus that allowed the user to customize the food features they wanted to 
+      display, a sort by y-axis value button, and filtering by gender. The overall process took 3-4 hours. Varick worked on developing the 
+      components, while Ravi worked on initial prototypes of the bar chart. Then, with both of those done, Rayyan linked it to our dataset 
+      and made sure the filtering process was working. With those delegations, we managed to develop our interactive visualization efficiently.</p>
   <script src="main.js"></script>
 </body>
 </html>
