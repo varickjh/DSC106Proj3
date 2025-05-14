@@ -7,7 +7,24 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-  <h2>Average Glucose Peaks by Participant</h2>
+  <h2>From Plate to Peak: How Meals Affect Glucose Levels</h2>
+
+  <p id="description" style="text-align: center; max-width: 800px; margin: 0 auto 20px auto; font-size: 15px; line-height: 1.5;">
+    🎉 <strong>Get ready to take control of your health!</strong> Use the checkboxes below to filter by macronutrients and discover how each specific nutrient can help you manage glucose peaks. Let’s make nutrition exciting! 🌟
+    <br><br>
+    <em>
+      The y-axis shows the <strong>average glucose peak</strong>—the highest glucose value recorded within a 2-hour window after consuming a food item. Only foods that meet at least 5% of the <a href="https://www.fda.gov/food/nutrition-facts-label/daily-value-nutrition-and-supplement-facts-labels" target="_blank" rel="noopener noreferrer">FDA-recommended</a> daily value for the selected nutrients are included.
+    </em>
+    <br><br>
+    ✅ Hover over each bar to see participant info like glucose peak, meal count, and HbA1C.  
+    <br>
+    🖱️ Click on a participant to explore the individual meals that contributed to their average.  
+    <br>
+    🎛️ Use the nutrient checkboxes, gender filter, and glucose threshold control to customize your view and uncover deeper insights.
+  </p>
+  
+  
+  
 
   <div class="controls" style="margin-bottom: 20px;">
     <strong>Select Nutrients:</strong><br>
@@ -53,6 +70,25 @@
 
   <div id ="writeup" style="margin-top: 20px;">
     <h3>Design Rationale</h3>
+    <p>
+      As seen above, our interactive bar chart comprises several design choices that encourage users to interact with the data in hopes that it will raise their awareness regarding how their glucose level is affected by food macronutrients (protein, carbohydrates, fat) and types of carbohydrates (sugar and fiber).
+    </p>
+    <p>
+      To understand our design decisions, we need to firstly understand the y-axis unit: <strong>average glucose peak value</strong>. The “peak value” here describes how glucose levels typically rise and fall after eating. In other words, for each food intake, glucose levels increase, reach a peak within a 2-hour window, and then decline. We capture this highest point — the peak — as the representative glucose response to that food.
+    </p>
+    <p>
+      Then, we’ve provided a checkbox of all the macronutrients at the top page, arguably the main part of our visualization. This checkbox serves to filter the foods that qualify for the FDA-approved recommended value of those macronutrient intakes (as explained in the annotation). Anything above 5% of that value is considered significant and thus included in the calculation for the glucose peak value. This checkbox interaction feature was designed around the interaction techniques we learned in class, where we aim to achieve the <strong>connect</strong> and <strong>filter</strong> interactive elements, showing something conditionally, and providing more or less detail.
+    </p>
+    <p>
+      Lastly, there was a <strong>reconfigure</strong> element that was achieved by both the sort button and “filter by gender” button, both of which show a different arrangement (another interactive element discussed in class).
+    </p>
+    <p>
+      Other interactive elements that we thought were important are a <strong>hover</strong> and <strong>select</strong> feature, where users can simply hover over a participant and access more information regarding the food they consumed. While hovering, users can read the <strong>HbA1C value</strong>, which is the average blood sugar control value over 2–3 months. After clicking a bar chart, users can see which foods (Top 20) contributed to the participants’ glucose level, allowing them to evaluate what foods are most significant. This achieves the <strong>encode</strong> interactive element where we see a different visual representation.
+    </p>
+    <p>
+      An alternative design decision that we had was a red-dotted y-axis threshold line, which is set at 140 by default, to imply which level is considered healthy. Initially, we had this value fixed, but we later chose to have it user-adjusted since peak glucose responses can vary based on individual health conditions, such as insulin sensitivity or metabolic goals. Moreover, the red line was initially black, but we thought it’d be better in red since red usually implies a danger/warning zone, serving the purpose of this red-dot line.
+    </p>
+
 
     <h3>An Overview of the Development Process</h3>
     <p>EDA on that dataset. Since Rayyan had experience using a Dexcom, we understood the BIG IDEAs Lab Glycemic Variability 

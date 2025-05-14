@@ -68,3 +68,17 @@ height: auto;
   justify-content: center;
   align-items: center;
 }
+
+#description {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 20px auto;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.x-axis-label,
+.y-axis-label {
+  font-size: 14px;
+  fill: #333;
+}
