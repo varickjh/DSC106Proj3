@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive D3.js Bar Chart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Food Nutrients Bar Chart</h1>
+        
+        <div class="controls">
+            <!-- Food Feature Checkboxes -->
+            <div class="control-group">
+                <h3>Food Features:</h3>
+                <div class="checkbox-group" id="feature-checkboxes">
+                    <!-- Checkboxes will be added here dynamically -->
+                </div>
+            </div>
+            
+            <!-- Gender Dropdown -->
+            <div class="control-group">
+                <h3>Gender:</h3>
+                <select id="gender-select">
+                    <option value="All">All</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            
+            <!-- Sort Button -->
+            <div class="control-group">
+                <h3>Sort:</h3>
+                <button id="sort-button">Sort by Value</button>
+            </div>
+        </div>
+        
+        <div class="chart-container" id="chart-container"> -->
+            <!-- Chart will be rendered here -->
+        </div>
+        
+        <div class="legend" id="legend">
+            <!-- Legend will be added here dynamically -->
+        </div>
+    </div>
+
+    <!-- Load D3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
