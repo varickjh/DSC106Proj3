@@ -28,9 +28,16 @@
 
     <br><br>
     <button id="sortBtn">Sort by Glucose</button>
+    <br><br>
+    <label for="thresholdInput"><strong>Glucose Alert Threshold:</strong></label>
+    <input type="number" id="thresholdInput" value="140" min="0" max="300" step="1">
+
   </div>
 
-  <svg id="chart" width="960" height="500"></svg>
+  <div class="chart-wrapper">
+    <svg id="chart" width="960" height="500"></svg>
+  </div>  
+
   <div id="tooltip" class="tooltip" style="
     position: absolute;
     text-align: left;

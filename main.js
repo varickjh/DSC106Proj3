@@ -33,6 +33,7 @@ d3.csv("glucose_peaks_by_nutrient.csv", d3.autoType).then(data => {
 });
 
 function updateChart() {
+  const threshold = +document.getElementById("thresholdInput").value || 140;
   const selectedNutrients = Array.from(document.querySelectorAll(".nutrient:checked"))
     .map(d => `${d.value}_present`);
   const genderFilter = document.getElementById("genderSelect").value;
@@ -56,7 +57,9 @@ function updateChart() {
   }
 
   if (sorted) {
-    summary.sort((a, b) => b.Avg_Peak_Glucose - a.Avg_Peak_Glucose);
+    summary.sort((a, b) => b.Avg_Peak_Glucose - a.Avg_Peak_Glucose);  // descending by glucose
+  } else {
+    summary.sort((a, b) => a.ID - b.ID);  // ascending by participant ID
   }
 
   chart.selectAll(".axis").remove();
@@ -81,15 +84,14 @@ function updateChart() {
     .domain([0, d3.max(summary, d => d.Avg_Peak_Glucose)]).nice()
     .range([height, 0]);
 
- chart.append("text")
+  chart.append("text")
     .attr("x", width / 2)
     .attr("y", -20) // position above the chart
     .attr("text-anchor", "middle")
     .attr("font-size", "16px")
     .attr("font-weight", "bold")
-    .text("Average Peak Glucose Levels by Participant");
   
- chart.append("text")
+  chart.append("text")
     .attr("x", width / 2)
     .attr("y", height + 90) // 50px below chart area, fits in bottom margin
     .attr("text-anchor", "middle")
@@ -115,6 +117,7 @@ function updateChart() {
   chart.append("g")
     .attr("class", "axis")
     .call(d3.axisLeft(y));
+
 
   chart.selectAll(".bar")
     .data(summary, d => d.ID)
@@ -143,12 +146,33 @@ function updateChart() {
   
       tooltip.transition().duration(400).style("opacity", 0);
     });
+    // Remove previous threshold line
+  chart.selectAll(".threshold-line").remove();
+
+  // Add dynamic red threshold line
+  chart.append("line")
+    .attr("class", "threshold-line")
+    .attr("x1", 0)
+    .attr("x2", width)
+    .attr("y1", y(threshold))
+    .attr("y2", y(threshold))
+    .attr("stroke", "red")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "4");
 }
 
 // ✅ Event Listeners
 document.querySelectorAll(".nutrient").forEach(cb => cb.addEventListener("change", updateChart));
 document.getElementById("genderSelect").addEventListener("change", updateChart);
-document.getElementById("sortBtn").addEventListener("click", () => {
+
+const sortButton = document.getElementById("sortBtn");
+
+sortButton.addEventListener("click", () => {
   sorted = !sorted;
   updateChart();
+
+  sortButton.textContent = sorted ? "Sort by Participant" : "Sort by Glucose";
 });
+
+document.getElementById("thresholdInput").addEventListener("input", updateChart);
+
